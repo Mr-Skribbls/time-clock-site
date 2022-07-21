@@ -8,15 +8,15 @@ import iProject from './interfaces/iProject';
 import iTimeCard from './interfaces/iTimeCards';
 
 /// ----- components ----- ///
+import HourAllocation from './components/HourAllocation/HourAllocation';
+import ProjectList from './components/ProjectList/ProjectList';
+import DaysProjectWork from './components/DaysProjectWork/DaysProjectWork';
 
 /// ----- services ----- ///
 import api from './services/api';
 
 /// ----- styles ----- ///
 import './App.css';
-import HourAllocation from './components/HourAllocation/HourAllocation';
-import ProjectList from './components/ProjectList/ProjectList';
-import DaysProjectWork from './components/DaysProjectWork/DaysProjectWork';
 
 const App = () => {
   const [weekdays, setWeekdays] = useState<iWeekday[]>([]);

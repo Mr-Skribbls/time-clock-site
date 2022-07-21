@@ -56,7 +56,7 @@ interface iRequestSettings {
   args: RequestInit,
 }
 
-const apiPath: string = 'http://192.168.1.202:3333';
+const apiPath: string = `${process.env.REACT_APP_API_URL}:${process.env.REACT_APP_API_PORT}`;
 
 const buildQueryParamsString = (queryParams: QueryParams): string => {
   const qpArray = _.reduce(queryParams, (result: string[], value: string, key: any) => [...result, `${key}=${value}`], []);
