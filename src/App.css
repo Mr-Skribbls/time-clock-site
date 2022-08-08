@@ -1,4 +1,9 @@
 .app {
+  --selection-bg-color: hsl(198, 63%, 38%);
+  --selection-color: hsl(100, 100%, 99%);
+}
+
+.app {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;

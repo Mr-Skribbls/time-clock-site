@@ -1,6 +1,36 @@
 .project-list {
   list-style-type: none;
   padding: 0;
-  margin: 0;
+  margin: 0 6px 0 0;
   cursor: pointer;
+}
+
+.project-list .selected {
+  background-color: var(--selection-bg-color);
+  color: var(--selection-color);
+}
+
+.project-list .working button {
+  background-color: var(--selection-bg-color);
+  color: var(--selection-color);;
+}
+
+.project-list li {
+  margin: 6px 0;
+}
+
+.project-list .list-item-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+}
+
+.project-list .list-item-container > * {
+  margin-right: 6px;
+}
+
+.project-list .list-item-display {
+  padding: 3px 6px;
+  border-radius: 6px;
 }

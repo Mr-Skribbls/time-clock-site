@@ -1,7 +1,7 @@
-export type projectId = string;
-export type projectName = string;
+export type ProjectId = string;
+export type ProjectName = string;
 
 export default interface iProject {
-  _id: projectId,
-  name: projectName,
+  _id: ProjectId,
+  name: ProjectName,
 }

@@ -7,7 +7,7 @@ import {
 } from '../interfaces/iApiRequestActions';
 import iWeekday, {WeekdayIndex} from '../interfaces/iWeekday';
 import iSchedule, {scheduleWeekday, schedulePlannedHours, scheduleId} from '../interfaces/iSchedule';
-import iProject, {projectId, projectName} from '../interfaces/iProject';
+import iProject, {ProjectId, ProjectName} from '../interfaces/iProject';
 import iTimeCard, { 
   TimeCardProjectId, 
   TimeCardDate, 
@@ -75,10 +75,11 @@ const requestBase = async ({url, queryParams, args}: iRequestSettings) => {
     url = `${url}${buildQueryParamsString(queryParams)}`;
   }
   try {
+    args.mode = 'cors';
     const res = await fetch(url, args);
     data = await res.json();
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
   return data;
 }
@@ -142,21 +143,21 @@ const allProjects = (): Promise<iProject[]> => requestBase({
   },
 });
 
-const oneProject = (id: projectId): Promise<iProject[]> => requestBase({
+const oneProject = (id: ProjectId): Promise<iProject[]> => requestBase({
   url: `${apiPath}/projects/${id}`,
   args: {
     method: 'GET',
   },
 });
 
-const addProject = (name: projectName): Promise<iProject[]> => requestBase({
+const addProject = (name: ProjectName): Promise<iProject[]> => requestBase({
   url: `${apiPath}/projects/${name}`,
   args: {
     method: 'POST',
   },
 });
 
-const deleteProject = (id: projectId): Promise<iProject[]> => requestBase({
+const deleteProject = (id: ProjectId): Promise<iProject[]> => requestBase({
   url: `${apiPath}/projects/${id}`,
   args: {
     method: 'DELETE',
@@ -226,10 +227,14 @@ const addTimeCard = async (projectId: TimeCardProjectId, date: TimeCardDate): Pr
   },
 }));
 
-const updateTimeCard = async (id: TimeCardId): Promise<iTimeCard[]> => constructTimeCards(await requestBase({
+const updateTimeCard = async (id: TimeCardId, body: BodyInit): Promise<iTimeCard[]> => constructTimeCards(await requestBase({
   url: `${apiPath}/timeCard/${id}`,
   args: {
     method: 'PUT',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body),
   },
 }));
 
