@@ -49,30 +49,19 @@ const ProjectList = ({
   const getButtonName = (project: iProject) => project._id === workingProjectId ? 'Stop' : 'Start';
   
   const projectNameListBuilder = (project: iProject, key: number): JSX.Element => {
-    let className = '';
-    let buttonName = 'Start';
-    if(project._id === selectedProjectId) {
-      className = `${className} selected`;
-    } else {
-      className = className.replace(/selected/g, '').trim();
-    }
-    if(project._id === workingProjectId) {
-      className = `${className} working`;
-      buttonName = 'Stop';
-    } else {
-      className = className.replace(/working/g, '').trim();
-    }
+    let className = getContainerClass(project);
+    let buttonName = getButtonName(project);
 
     const itemContainer = (display: JSX.Element, startButton: JSX.Element): JSX.Element => <div className={`list-item-container ${className}`}>
       {startButton}
       {display}
     </div>
 
-    const display = (name: ProjectName): JSX.Element => <span className={`list-item-display`}>{name}</span>
+    const display = (name: ProjectName): JSX.Element => <span className={`list-item-display`} onClick={selectionClickEvent(project)}>{name}</span>
 
     const startButton = (project: iProject): JSX.Element => <button onClick={startButtonClickEvent(project)}>{buttonName}</button>
 
-    return <li key={key} onClick={selectionClickEvent(project)}>
+    return <li key={key}>
       {itemContainer(
         display(project.name), 
         startButton(project)
@@ -81,15 +70,7 @@ const ProjectList = ({
   };
 
   return (
-    // <UnorderedList listItems={projects} listBuilder={projectNameListBuilder} className="project-list"></UnorderedList>
-    <ul className='project-list'>
-      {projects.map((project, key) => <li key={key}>
-        <div className={`list-item-container ${getContainerClass(project)}`} onClick={selectionClickEvent(project)}>
-          <button onClick={startButtonClickEvent(project)}>{getButtonName(project)}</button>
-          <span className='list-item-display'>{project.name}</span>
-        </div>
-      </li>)}
-    </ul>
+    <UnorderedList listItems={projects} listBuilder={projectNameListBuilder} className="project-list"></UnorderedList>
   );
 };
 

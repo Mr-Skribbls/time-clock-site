@@ -29,6 +29,7 @@ const App = () => {
   const [weeksHoursPlanned, setWeeksHoursPlanned] = useState<number>(0);
   const [weeksHoursWorked, setWeeksHoursWorked] = useState<number>(0);
 
+  /// ----- Effects ----- ///
   useEffect(() => {
     loadAllData();
   }, []);
@@ -41,12 +42,13 @@ const App = () => {
   }, [schedules]);
 
   useEffect(() => {
-    const wpId = getWorkingProject(timeCards, projects)?._id
-    setWorkingProjectId(wpId);
+    setWorkingProjectId(getWorkingProject(timeCards, projects)?._id);
   }, [timeCards, projects]);
+
 
   const todaysDay = (new Date()).getDay();
 
+  /// ----- Data Loading ----- ///
   const loadAllData = async () => {
     loadWeekdays();
     loadProjects();
@@ -87,40 +89,8 @@ const App = () => {
     setWeeksHoursWorked(weekTimeCards.reduce((res, tc) => _.toNumber(res) + _.toNumber(tc.accumulated_time), weeksHoursWorked));
   };
 
-  const getWorkingTimeCard = (timeCards: iTimeCard[]): iTimeCard|undefined => {
-    return timeCards.find((tc) => !_.isNil(tc.time_punch));
-  };
-
-  const getWorkingProject = (timeCards: iTimeCard[], projects: iProject[]): iProject|null => {
-    let workingProject: iProject|null = null;
-    const workingTimeCard: iTimeCard|undefined = getWorkingTimeCard(timeCards);
-    if(!_.isNil(workingTimeCard)) {
-      workingProject = projects.find((proj) => proj._id === workingTimeCard.project_id) || null;
-    }
-    return workingProject;
-  };
-
-  const toggleProjectSelection = (projectId: ProjectId): void => {
-    setSelectedProjectId(projectId !== selectedProjectId ? projectId : null);
-  };
-
-  const toggleStart = (timeCards: iTimeCard[]) => (projectId: ProjectId): void => {
-    setWorkingProjectId(workingProjectId !== projectId ? projectId : null);
-
-    const datetime: Date = new Date();
-    let timeCard: iTimeCard|undefined = timeCards.find((tc) => tc.project_id === projectId);
-    let timeCards_copy: iTimeCard[] = _.cloneDeep(timeCards);
-
-    const update = updateTimeCard({
-      datetime,
-      projectId,
-      timeCard,
-      timeCards: timeCards_copy,
-    });
-
-    update.then(() => loadTimeCards());
-  };
-
+  /// ----- Updates ----- ///
+  
   const updateTimeCard = async ({
     datetime,
     projectId,
@@ -141,6 +111,44 @@ const App = () => {
     return await api.timeCards.update(timeCard._id, {
       timePunch: true,
     });
+  };
+
+  /// ----- Events ----- ///
+  const toggleProjectSelection = (projectId: ProjectId): void => {
+    setSelectedProjectId(projectId !== selectedProjectId ? projectId : null);
+  };
+
+  const toggleStart = (timeCards: iTimeCard[]) => (projectId: ProjectId): void => {
+    setWorkingProjectId(workingProjectId !== projectId ? projectId : null);
+    setSelectedProjectId(workingProjectId !== projectId ? projectId : workingProjectId);
+
+    const datetime: Date = new Date();
+    let timeCard: iTimeCard|undefined = timeCards.find((tc) => tc.project_id === projectId);
+    let timeCards_copy: iTimeCard[] = _.cloneDeep(timeCards);
+
+    const update = updateTimeCard({
+      datetime,
+      projectId,
+      timeCard,
+      timeCards: timeCards_copy,
+    });
+
+    update.then(() => loadTimeCards());
+  };
+
+  /// ----- Methods ----- ///
+
+  const getWorkingTimeCard = (timeCards: iTimeCard[]): iTimeCard|undefined => {
+    return timeCards.find((tc) => !_.isNil(tc.time_punch));
+  };
+
+  const getWorkingProject = (timeCards: iTimeCard[], projects: iProject[]): iProject|null => {
+    let workingProject: iProject|null = null;
+    const workingTimeCard: iTimeCard|undefined = getWorkingTimeCard(timeCards);
+    if(!_.isNil(workingTimeCard)) {
+      workingProject = projects.find((proj) => proj._id === workingTimeCard.project_id) || null;
+    }
+    return workingProject;
   };
 
   return (
