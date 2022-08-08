@@ -1,0 +1,9 @@
+.work-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.work-container textarea {
+  height: 500px;
+  resize: vertical;
+}

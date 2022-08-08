@@ -1,7 +1,4 @@
-import _ from 'lodash';
-
 /// ----- interfaces ----- ///
-import { JsxElement } from 'typescript';
 import iProject, {ProjectId, ProjectName} from '../../interfaces/iProject';
 
 /// ----- components ----- ///
