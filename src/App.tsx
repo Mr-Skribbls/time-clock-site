@@ -14,12 +14,14 @@ import DaysProjectWork from './components/DaysProjectWork/DaysProjectWork';
 
 /// ----- services ----- ///
 import api from './services/api';
+import time from './services/time';
 
 /// ----- styles ----- ///
 import './App.css';
 
 const App = () => {
   const [weekdays, setWeekdays] = useState<iWeekday[]>([]);
+  const [weekday, setWeekday] = useState('today');
   const [schedules, setSchedules] = useState<iSchedule[]>([]);
   const [projects, setProjects] = useState<iProject[]>([]);
   const [timeCards, setTimeCards] = useState<iTimeCard[]>([]);
@@ -28,10 +30,22 @@ const App = () => {
   const [workingProjectId, setWorkingProjectId] = useState<ProjectId | null>();
   const [weeksHoursPlanned, setWeeksHoursPlanned] = useState<number>(0);
   const [weeksHoursWorked, setWeeksHoursWorked] = useState<number>(0);
+  const [selectedProjectTime, setSelectedProjectTime] = useState<number>(0);
+  const [daysTimeCardSum, setDaysTimeCardSum] = useState<number>(0);
 
   const todaysDay = (new Date()).getDay();
 
   /// ----- Effects ----- ///
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const selectedProjectTimeCard =  getProjectTimeCard(selectedProjectId, timeCards);
+      setSelectedProjectTime(addTimeCardsHoursWorked(_.isNil(selectedProjectTimeCard) ? [] : [selectedProjectTimeCard]));
+      setDaysTimeCardSum(addTimeCardsHoursWorked(timeCards));
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [selectedProjectId, timeCards]);
+
   useEffect(() => {
     const loadAllData = async () => {
       loadWeekdays();
@@ -43,23 +57,17 @@ const App = () => {
 
     };
 
-    const loadWeeksHoursWorked = async () => {
-      const weekTimeCards: iTimeCard[] = await api.timeCards.all({
-        dateFrom: new Date((new Date()).setDate((new Date()).getDate() - todaysDay)),
-        dateTo: new Date(),
-      });
-      setWeeksHoursWorked(weekTimeCards.reduce((res, tc) => _.toNumber(res) + _.toNumber(tc.accumulated_time), weeksHoursWorked));
-    };
+    loadWeeksHoursWorked();
 
     loadAllData();
-  }, [todaysDay, weeksHoursWorked]);
+  }, [todaysDay]);
 
   useEffect(() => {
     setWeeksHoursPlanned(schedules
       .filter((sdl) => sdl.weekday <= todaysDay)
-      .reduce((res, sdl) => _.toNumber(res) + _.toNumber(sdl.planned_hours), weeksHoursPlanned)
+      .reduce((res, sdl) => _.toNumber(res) + _.toNumber(sdl.planned_hours), 0)
     );
-  }, [schedules, todaysDay, weeksHoursWorked, weeksHoursPlanned]);
+  }, [schedules, todaysDay]);
 
   useEffect(() => {    
     const getWorkingProject = (timeCards: iTimeCard[], projects: iProject[]): iProject | null => {
@@ -74,7 +82,17 @@ const App = () => {
     const wpId = getWorkingProject(timeCards, projects)?._id;
     setWorkingProjectId(wpId);
     setSelectedProjectId(wpId);
+
+    loadWeeksHoursWorked();
+
   }, [timeCards, projects]);
+
+  useEffect(() => {
+    const wd = weekdays.find((w) => w.index === todaysDay)
+    if(!_.isNil(wd)) {
+      setWeekday(wd.display_name.toString());
+    }
+  }, [weekdays, todaysDay]);
 
 
   /// ----- Data Loading ----- ///
@@ -99,6 +117,11 @@ const App = () => {
     });
 
     setTimeCards(timeCards);
+  };
+
+  const loadWeeksHoursWorked = async () => {
+    const weekTimeCards: iTimeCard[] = await getWeeksTimeCards();
+    setWeeksHoursWorked(getWeeksHoursWorked(weekTimeCards));
   };
 
   /// ----- Updates ----- ///
@@ -181,15 +204,25 @@ const App = () => {
     return timeCards.find((tc) => !_.isNil(tc.time_punch));
   };
 
+  const addTimeCardsHoursWorked = (timeCards: iTimeCard[]): number => 
+    timeCards.reduce((acc, timeCard) => acc + time.getWorkingHours(timeCard), 0);
+
+  const getWeeksHoursWorked = (weekTimeCards: iTimeCard[]) => weekTimeCards.reduce((res, tc) => _.toNumber(res) + _.toNumber(tc.accumulated_time), 0);
+
+  const getWeeksTimeCards = (): Promise<iTimeCard[]> => api.timeCards.all({
+    dateFrom: new Date((new Date()).setDate((new Date()).getDate() - todaysDay)),
+    dateTo: new Date(),
+  });
+
   return (
     <div className='app'>
-      <div className='date-display'>today</div>
+      <div className='date-display'>{weekday}</div>
       <div className='timecard'>
         <div className='timecard-section hour-allocation'>
           <HourAllocation
             weeksHrsWorked={weeksHoursWorked}
             weeksHrsPlanned={weeksHoursPlanned}
-            hrsWorked={1}
+            hrsWorked={addTimeCardsHoursWorked(timeCards)}
             hrsPlanned={schedules.find((s) => s.weekday === todaysDay)?.planned_hours}></HourAllocation>
         </div>
         <div className='timecard-section projects-list'>
@@ -203,6 +236,7 @@ const App = () => {
         <div className='timecard-section project-breakdown'>
           <DaysProjectWork
             timeCard={getProjectTimeCard(selectedProjectId, timeCards)}
+            timeAccrued={selectedProjectTime}
             updateNotes={updateNotes(getProjectTimeCard(selectedProjectId, timeCards))}></DaysProjectWork>
         </div>
       </div>
