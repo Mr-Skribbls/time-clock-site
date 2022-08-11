@@ -222,7 +222,7 @@ const App = () => {
           <HourAllocation
             weeksHrsWorked={weeksHoursWorked}
             weeksHrsPlanned={weeksHoursPlanned}
-            hrsWorked={addTimeCardsHoursWorked(timeCards)}
+            hrsWorked={daysTimeCardSum}
             hrsPlanned={schedules.find((s) => s.weekday === todaysDay)?.planned_hours}></HourAllocation>
         </div>
         <div className='timecard-section projects-list'>
