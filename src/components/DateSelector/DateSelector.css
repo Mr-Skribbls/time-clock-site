@@ -1,0 +1,24 @@
+.date-selector {
+  display: flex;
+  flex-direction: row;
+
+  --button-size: 20px;
+}
+
+.selector-button {
+  background-color: grey;
+  width: var(--button-size);
+  height: var(--button-size);
+  text-align: center;
+  align-items: center;
+  border-radius: calc(var(--button-size)/2);
+  cursor: pointer;
+  line-height: calc(var(--button-size)+0.9);
+  white-space: nowrap;
+  color: white;
+  font-weight: bold;
+}
+
+.date-display {
+  margin: 0 5px;
+}

@@ -11,15 +11,19 @@ import iTimeCard, { TimeCardId, TimeCardNotes } from './interfaces/iTimeCards';
 import HourAllocation from './components/HourAllocation/HourAllocation';
 import ProjectList from './components/ProjectList/ProjectList';
 import DaysProjectWork from './components/DaysProjectWork/DaysProjectWork';
+import DateSelector from './components/DateSelector/DateSelector';
 
 /// ----- services ----- ///
 import api from './services/api';
 import time from './services/time';
+import date from './services/date';
 
 /// ----- styles ----- ///
 import './App.css';
 
-const App = () => {
+const App = () => {  
+  // const todaysDay = (new Date()).getDay();
+
   const [weekdays, setWeekdays] = useState<iWeekday[]>([]);
   const [weekday, setWeekday] = useState('today');
   const [schedules, setSchedules] = useState<iSchedule[]>([]);
@@ -28,12 +32,12 @@ const App = () => {
 
   const [selectedProjectId, setSelectedProjectId] = useState<ProjectId | null>();
   const [workingProjectId, setWorkingProjectId] = useState<ProjectId | null>();
-  const [weeksHoursPlanned, setWeeksHoursPlanned] = useState<number>(0);
-  const [weeksHoursWorked, setWeeksHoursWorked] = useState<number>(0);
-  const [selectedProjectTime, setSelectedProjectTime] = useState<number>(0);
-  const [daysTimeCardSum, setDaysTimeCardSum] = useState<number>(0);
-
-  const todaysDay = (new Date()).getDay();
+  const [weeksHoursPlanned, setWeeksHoursPlanned] = useState(0);
+  const [weeksHoursWorked, setWeeksHoursWorked] = useState(0);
+  const [selectedProjectTime, setSelectedProjectTime] = useState(0);
+  const [daysTimeCardSum, setDaysTimeCardSum] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [todaysDay, setTodaysDay] = useState(0);
 
   /// ----- Effects ----- ///
   useEffect(() => {
@@ -47,6 +51,8 @@ const App = () => {
   }, [selectedProjectId, timeCards]);
 
   useEffect(() => {
+    setTodaysDay(selectedDate.getDay());
+
     const loadAllData = async () => {
       loadWeekdays();
       loadProjects();
@@ -54,13 +60,12 @@ const App = () => {
       loadTimeCards();
 
       loadWeeksHoursWorked();
-
     };
 
     loadWeeksHoursWorked();
 
     loadAllData();
-  }, [todaysDay]);
+  }, [selectedDate]);
 
   useEffect(() => {
     setWeeksHoursPlanned(schedules
@@ -113,7 +118,7 @@ const App = () => {
 
   const loadTimeCards = async () => {
     const timeCards: iTimeCard[] = await api.timeCards.all({
-      date: new Date(),
+      date: selectedDate,
     });
 
     setTimeCards(timeCards);
@@ -193,7 +198,7 @@ const App = () => {
     });
 
     p.then(() => loadTimeCards());
-  }
+  };
 
   /// ----- Methods ----- ///
 
@@ -216,7 +221,11 @@ const App = () => {
 
   return (
     <div className='app'>
-      <div className='date-display'>{weekday}</div>
+      <div className='date-display'>
+        <DateSelector
+          selectedDate={selectedDate}
+          setDate={setSelectedDate}></DateSelector>  
+      </div>
       <div className='timecard'>
         <div className='timecard-section hour-allocation'>
           <HourAllocation
