@@ -21,9 +21,7 @@ import date from './services/date';
 /// ----- styles ----- ///
 import './App.css';
 
-const App = () => {  
-  // const todaysDay = (new Date()).getDay();
-
+const App = () => {
   const [weekdays, setWeekdays] = useState<iWeekday[]>([]);
   const [weekday, setWeekday] = useState('today');
   const [schedules, setSchedules] = useState<iSchedule[]>([]);
@@ -44,7 +42,7 @@ const App = () => {
     const interval = setInterval(() => {
       const selectedProjectTimeCard =  getProjectTimeCard(selectedProjectId, timeCards);
       setSelectedProjectTime(addTimeCardsHoursWorked(_.isNil(selectedProjectTimeCard) ? [] : [selectedProjectTimeCard]));
-      setDaysTimeCardSum(addTimeCardsHoursWorked(timeCards));
+      setDaysTimeCardSum(time.round(addTimeCardsHoursWorked(timeCards), 3));
     }, 100);
 
     return () => clearInterval(interval);
@@ -86,7 +84,10 @@ const App = () => {
 
     const wpId = getWorkingProject(timeCards, projects)?._id;
     setWorkingProjectId(wpId);
-    setSelectedProjectId(wpId);
+    
+    if(_.isNil(selectedProjectId)) {
+      setSelectedProjectId(wpId);
+    }
 
     loadWeeksHoursWorked();
 

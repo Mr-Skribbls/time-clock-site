@@ -22,8 +22,6 @@
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: stretch;
-  align-content: space-around;
 }
 
 .timecard-section {
