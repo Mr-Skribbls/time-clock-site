@@ -59,9 +59,7 @@ const App = () => {
 
       loadWeeksHoursWorked();
     };
-
-    loadWeeksHoursWorked();
-
+    
     loadAllData();
   }, [selectedDate]);
 
